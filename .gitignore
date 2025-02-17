@@ -1,0 +1,13 @@
+RustLock/target
+
+# Clear Service
+server/ClearService/ftp_upload/*
+server/ClearService/ftp_processed/*
+server/ClearService/database.db
+
+# Hidden Service
+server/HiddenService/backend/downloads/*
+server/HiddenService/backend/aggregator.db
+server/HiddenService/frontend/node_modules
+server/HiddenService/frontend/build
+server/HiddenService/frontend/package-lock.json

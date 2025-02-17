@@ -1,0 +1,2 @@
+// List of C2#1 servers as IP:API_PORT|API_KEY
+Main|http://127.0.0.1:5000|m3str3
