@@ -31,7 +31,7 @@ learning and experimentation. Seriously, don't get any funny ideas!
 
 Author: Ignacio Jose Mestre Villagrasa
 GitHub: https://github.com/M3str3
-Repository: https://github.com/M3str3/rust-ransomware
+Repository: https://github.com/M3str3/Ransomware
 
 // ======================= FEATURES ======================
 
