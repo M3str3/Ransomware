@@ -16,7 +16,7 @@ use winapi::um::winuser::{
 /// This function writes an image file to the specified directory and sets it as the wallpaper.
 /// The update is forced to ensure immediate effect without modifying the Windows registry.
 pub fn change_wallpaper(directory: &str) -> Result<(), String> {
-    let image_data = include_bytes!("../../resources/wallpaper.bmp");
+    let image_data = include_bytes!("../../resources/wallpaper.png");
 
     // Save the image to the specified folder
     let mut wallpaper_path = PathBuf::from(directory);
