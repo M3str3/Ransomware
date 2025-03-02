@@ -1,4 +1,4 @@
-use rustlock::{decypher, cypher};
+use rustlock::{cypher, decypher};
 // TODO: Fix imports
 use base64;
 use rsa::pkcs8::DecodePrivateKey;

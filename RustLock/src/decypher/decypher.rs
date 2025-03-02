@@ -1,6 +1,7 @@
 use std::ffi::CString;
-
 use std::ptr::null_mut;
+
+#[cfg(debug_assertions)]
 use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::fileapi::{CreateFileA, ReadFile, WriteFile, OPEN_ALWAYS, OPEN_EXISTING};
 use winapi::um::handleapi::CloseHandle;
@@ -24,11 +25,17 @@ pub fn decrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             CRYPT_VERIFYCONTEXT,
         ) == 0
         {
-            println!("Error during CryptAcquireContext!");
-            println!("Error code: {}", GetLastError());
+            #[cfg(debug_assertions)]
+            {
+                println!("Error during CryptAcquireContext!");
+                println!("Error code: {}", GetLastError());
+            }
             return false;
         } else {
-            println!("A cryptographic provider has been acquired.");
+            #[cfg(debug_assertions)]
+            {
+                println!("A cryptographic provider has been acquired.");
+            }
         }
 
         if CryptImportKey(
@@ -40,10 +47,16 @@ pub fn decrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             &mut h_key,
         ) == 0
         {
-            println!("Import fail {:?}", GetLastError());
+            #[cfg(debug_assertions)]
+            {
+                println!("Import fail {:?}", GetLastError());
+            }
             return false;
         } else {
-            println!("Import successful. Key is {}", h_key);
+            #[cfg(debug_assertions)]
+            {
+                println!("Import successful. Key is {}", h_key);
+            }
         }
 
         let src_handle: HANDLE = CreateFileA(
@@ -84,7 +97,10 @@ pub fn decrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
                 null_mut(),
             ) == 0
             {
-                println!("Error reading 0x{:x}", GetLastError());
+                #[cfg(debug_assertions)]
+                {
+                    println!("Error reading 0x{:x}", GetLastError());
+                }
                 break;
             }
 
@@ -93,7 +109,10 @@ pub fn decrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             }
 
             if CryptDecrypt(h_key, 0, eof, 0, pb_buffer.as_mut_ptr(), &mut count) == 0 {
-                println!("Fail to decrypt 0x{:x}", GetLastError());
+                #[cfg(debug_assertions)]
+                {
+                    println!("Fail to decrypt 0x{:x}", GetLastError());
+                }
                 break;
             }
 
@@ -105,7 +124,10 @@ pub fn decrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
                 null_mut(),
             ) == 0
             {
-                println!("Fail to write");
+                #[cfg(debug_assertions)]
+                {
+                    println!("Fail to write");
+                }
                 break;
             }
         }

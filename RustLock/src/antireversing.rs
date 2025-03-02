@@ -4,7 +4,6 @@ use std::ptr::null_mut;
 use winapi::{
     shared::minwindef::HMODULE,
     um::{
-
         debugapi::IsDebuggerPresent,
         handleapi::CloseHandle,
         processthreadsapi::OpenProcess,
@@ -12,7 +11,6 @@ use winapi::{
         winnt::{PROCESS_QUERY_INFORMATION, PROCESS_VM_READ},
     },
 };
-
 
 /// ===================================================================================
 /// Anti-Reversing Techniques
@@ -117,9 +115,20 @@ fn get_process_name(pid: u32) -> Option<String> {
 /// These processes are commonly associated with reverse engineering, VM detection, and monitoring tools.
 fn is_process_suspicious(name: &str) -> bool {
     let suspicious_processes = [
-        "vmsrvc", "tcpview", "wireshark", "fiddler", "vmware", "VirtualBox",
-        "procexp", "autoit", "vboxtray", "vmtoolsd", "vmrawdsk", "vmusbmouse",
-        "df5serv", "vboxservice",
+        "vmsrvc",
+        "tcpview",
+        "wireshark",
+        "fiddler",
+        "vmware",
+        "VirtualBox",
+        "procexp",
+        "autoit",
+        "vboxtray",
+        "vmtoolsd",
+        "vmrawdsk",
+        "vmusbmouse",
+        "df5serv",
+        "vboxservice",
     ];
     suspicious_processes
         .iter()

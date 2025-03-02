@@ -1,8 +1,7 @@
 use std::sync::LazyLock;
 
-pub static SERVER_FTP: LazyLock<&str> = LazyLock::new(|| {
-    option_env!("SERVER_FTP").unwrap_or("127.0.0.1:2121")
-});
+pub static SERVER_FTP: LazyLock<&str> =
+    LazyLock::new(|| option_env!("SERVER_FTP").unwrap_or("127.0.0.1:2121"));
 
 pub const PUBLIC_KEY_PEM: &str = include_str!("../../keys/public_key.pem");
 
